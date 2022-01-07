@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+<div class="content">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+
+            {% if form.errors %}
+
+            <div class="alert alert-danger" role="alert">
+                <h5 class="icon fas fa-bin">Error al guardar el registro!</h5>
+                <ul>
+                    {% for field in form %} {% for error in field.errors %}
+                    <li>
+                        {{error}}
+                    </li>
+                    {% endfor %} {% endfor %}
+                </ul>
+
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <form method="post" class="card-box" enctype="multipart/form-data">
+                <div class="row">
+
+                    {% csrf_token %}
+
+
+                    <div class="form-group  col-md-12 mt-3">
+
+                        {{ form.cliente.label_tag }} {{ form.cliente }} {% if form.cliente.help_text %}
+                        <small id="help" class="form-text text-muted">{{ field.help_text|safe }}</small> {% endif %}
+                    </div>
+
+                    <div class="form-group  col-md-12 mt-3">
+
+                        {{ form.producto.label_tag }} {{ form.producto }} {% if form.producto.help_text %}
+                        <small id="help" class="form-text text-muted">{{ field.help_text|safe }}</small> {% endif %}
+                    </div>
+
+                    <div class="form-group  col-md-12 mt-3">
+
+                        {{ form.cantidad.label_tag }} {{ form.cantidad }} {% if form.cantidad.help_text %}
+                        <small id="help" class="form-text text-muted">{{ field.help_text|safe }}</small> {% endif %}
+                    </div>
+                    <div class="form-group  col-md-12 mt-3">
+                        <label for="">Precio:</label>
+                        <input class="form-control" type="text" name="precio_producto" id="precio_producto" disabled>
+                    </div>
+                    <div class="form-group  col-md-12 mt-3">
+                        <label for="">Total:</label>
+                        <input class="form-control" type="text" name="total_producto" id="total_producto" disabled>
+                    </div>
+
+
+
+                </div>
+                <div class="m-t-20 text-center">
+                    <a type="button" class="btn btn-danger submit-btn" href="{% url 'venta_list' %}">Cancelar</a>
+                    <button class="btn btn-primary submit-btn">Guardar Registro</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main %}
+
+
+{% block js %}
+<script>
+
+
+    function consultarPrecio() {
+        //obtengo los valores de mis select y valido que hayan sido seleccionados
+        var producto = $("#id_producto").val();
+        if (producto == "" || producto == null) {
+           
+            return false;
+        }
+
+        //token
+        var csrftoken = $("input[name=csrfmiddlewaretoken]").val();
+        $.ajax({
+            type: "GET",
+            url: "consultar_tarifa",
+            data: {
+                csrfmiddlewaretoken: csrftoken,
+                producto: producto,
+
+            },
+            dataType: "json",
+            success: function (data) {
+                codigo = data.resultado;
+                producto_data = data.precio[0];
+                if (codigo == 'ok_select') {
+                
+                    $("#precio_producto").val(producto_data.precio);
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+                if (jqXHR.status === 0) {
+
+                    alert('Error al intentar Conectarse: Verifique su conexion a Internet.');
+
+                } else if (jqXHR.status == 404) {
+
+                    alert('La Pagina solicitada no fue encontrada [404]');
+
+                } else if (jqXHR.status == 500) {
+
+                    alert('Erro Interno [500]');
+
+                } else if (textStatus === 'parsererror') {
+
+                    alert('Error en el retorno de Datos. [parseJson]');
+
+                } else if (textStatus === 'timeout') {
+
+                    alert('Tiempo de Espera agotado');
+
+                } else if (textStatus === 'abort') {
+                    alert('Solicitud Abortada. [Ajax Request]');
+
+                } else {
+                    swal('Error desconocido: ' + jqXHR.responseText);
+
+                }//end if 
+
+            }//end error
+        });
+
+    }//end function consultarPrecio
+
+</script>
+
+<script>
+    function consultarCosto() {
+        //obtengo los valores de mis select y valido que hayan sido seleccionados
+        var cantidad = $("#id_cantidad").val();
+        var precio = $("#precio_producto").val();
+        var total =0;
+        if (cantidad == "" || cantidad == null && precio == "" || precio == null) {
+          
+            return false;
+        }
+        total = cantidad*precio;
+
+        $("#total_producto").val(total);
+
+    }
+
+</script>
+
+{% endblock js %}

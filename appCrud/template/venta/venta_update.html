@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    
+<div class="content">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+
+            {% if form.errors %}
+
+            <div class="alert alert-danger" role="alert">
+                <h5 class="icon fas fa-bin">Error al guardar el registro!</h5>
+                <ul>
+                    {% for field in form %} {% for error in field.errors %}
+                    <li>
+                        {{error}}
+                    </li>
+                    {% endfor %} {% endfor %}
+                </ul>
+
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <form method="post" class="card-box" enctype="multipart/form-data">
+                <div class="row">
+
+                    {% csrf_token %} {% for field in form %}
+
+                    <div class="form-group  col-md-12 mt-3">
+                    
+                        {{ field.label_tag }} {{  field }} {% if  field.help_text %}
+                        <small id="help" class="form-text text-muted">{{ field.help_text|safe }}</small> {% endif %}
+                    </div>
+                    {% endfor %}
+
+                </div>
+                <div class="m-t-20 text-center">
+                    <a type="button" class="btn btn-danger submit-btn" href="{% url 'venta_list' %}">Cancelar</a>
+                    <button class="btn btn-primary submit-btn">Guardar Registro</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main %}
+    
